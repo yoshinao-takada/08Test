@@ -25,7 +25,7 @@ BMStatus_t BMEvPool_Return(BMEvPool_pt pool, BMEv_pt ev)
     BMPoolBase_LOCK((BMPoolBase_pt)pool);
     do {
         if (ev->listeners) break;
-        status = BMPoolBase_Reset(&pool->base, offs);
+        status = BMPoolBase_Return(&pool->base, offs);
     } while (0);
     BMPoolBase_UNLOCK((BMPoolBase_pt)pool);
     return status;

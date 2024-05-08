@@ -1,7 +1,7 @@
-#include "BMPoolBase.h"
+#include "BMDefs.h"
 #include "BMTest.h"
 
-BMStatus_t BMPoolBaseUT()
+BMStatus_t BMDefsUT()
 {
     BMStatus_t status = BMStatus_SUCCESS;
     do {

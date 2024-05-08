@@ -20,11 +20,11 @@ typedef struct {
 
 #define BMEvQ_INIT(_varptr) BMQBase_INIT((BMQBase_pt)_varptr)
 
-#define BMEvQ_INIT(_varptr) BMQBase_DEINIT((BMQBase_pt)_varptr)
+#define BMEvQ_DEINIT(_varptr) BMQBase_DEINIT((BMQBase_pt)_varptr)
 
-#define BMEvQ_INIT(_varptr) BMQBase_LOCK((BMQBase_pt)_varptr)
+#define BMEvQ_LOCK(_varptr) BMQBase_LOCK((BMQBase_pt)_varptr)
 
-#define BMEvQ_INIT(_varptr) BMQBase_UNLOCK((BMQBase_pt)_varptr)
+#define BMEvQ_UNLOCK(_varptr) BMQBase_UNLOCK((BMQBase_pt)_varptr)
 #pragma endregion BMEvQ_MACROS
 #pragma region BMEvQ_METHODS
 /*!
@@ -47,7 +47,7 @@ BMStatus_t BMEvQ_Put(BMEvQ_pt _varptr, BMEv_pt evptr);
 
 typedef struct {
     BMPoolBase_t base;
-    BMEvQ_pt *evqptrs;
+    BMEvQ_pt evqs;
 } BMEvQPool_t, *BMEvQPool_pt;
 
 #define BMEvQPool_DECL(_varname, _count, _qsize) \
@@ -71,13 +71,13 @@ typedef struct {
 #define BMEvQPool_INIT(_varptr) BMPoolBase_INIT((BMPoolBase_pt)_varptr); \
     for (uint16_t _i = 0; _i < (_varptr)->base.count; _i++) \
     { \
-        BMEvQ_INIT((_varptr)->evqptrs + _i); \
+        BMEvQ_INIT((_varptr)->evqs + _i); \
     }
 
 #define BMEvQPool_DEINIT(_varptr) BMPoolBase_DEINIT((BMPoolBase_pt)_varptr); \
     for (uint16_t _i = 0; _i < (_varptr)->base.count; _i++) \
     { \
-        BMEvQ_DEINIT((_varptr)->evqptrs + _i); \
+        BMEvQ_DEINIT((_varptr)->evqs + _i); \
     }
 
 
