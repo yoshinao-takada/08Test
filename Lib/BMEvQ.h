@@ -55,7 +55,7 @@ typedef struct {
     BMEvQ_t _varname ## _evqs[_count] = { \
         { BMQBase(_qsize), _varname ## _evptrs } \
     }; \
-    uint16_t _varname ## _used[BMALIGN_TO16(_count) >> 4]; \
+    uint16_t _varname ## _used[BMAlign_TO16(_count) >> 4]; \
     BMEvQPool_t _varname = { \
         { _varname ## _used, 0, _count }, _varname ## _evqs }
 
@@ -64,7 +64,7 @@ typedef struct {
     static BMEvQ_t _varname ## _evqs[_count] = { \
         { BMQBase(_qsize), _varname ## _evptrs } \
     }; \
-    static uint16_t _varname ## _used[BMALIGN_TO16(_count) >> 4]; \
+    static uint16_t _varname ## _used[BMAlign_TO16(_count) >> 4]; \
     static BMEvQPool_t _varname = { \
         { _varname ## _used, 0, _count }, _varname ## _evqs }
 

@@ -19,11 +19,11 @@ BMTick | Systemwide interval timer and dispatchers
 Table 2: Macros and functions
 Macros | Description
 -------|------------------------
-BMARRAY_SIZE | retrieve a size of an array
-BMALIGN_ARCH | 2: 16 bit, 4: 32 bit, 8: 64 bit architectures
-BMALIGN_MASK | 1: 16 bit, 3: 32 bit, 7: 64 bit architectures
-BMALIGN_DOWN | floor of alignment boundary
-BMALIGN_UP | ceiling of alignment boundary
+BMArray_SIZE | retrieve a size of an array
+BMAlign_ARCH | 2: 16 bit, 4: 32 bit, 8: 64 bit architectures
+BMAlign_MASK | 1: 16 bit, 3: 32 bit, 7: 64 bit architectures
+BMAlign_DOWN | floor of alignment boundary
+BMAlign_UP | ceiling of alignment boundary
 
 ## `BMQBase`
 Table 3.1: Struct

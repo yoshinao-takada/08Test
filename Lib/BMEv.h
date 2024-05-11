@@ -21,7 +21,7 @@ typedef struct {
 */
 #define BMEvPool_DECL(_varname, _count) \
     BMEv_t _varname ## _ev[_count]; \
-    uint16_t _varname ## _used[(_count >> 4) + 1]; \
+    uint16_t _varname ## _used[BMAlign_TO16(_count) >> 4]; \
     BMEvPool_t _varname = { \
         { _varname ## _used, 0, _count }, _varname ## _ev }
 
@@ -30,7 +30,7 @@ typedef struct {
 */
 #define BMEvPool_SDECL(_varname, _count) \
     static BMEv_t _varname ## _ev[_count]; \
-    static uint16_t _varname ## _used[(_count >> 4) + 1]; \
+    static uint16_t _varname ## _used[BMAlign_TO16(_count) >> 4]; \
     static BMEvPool_t _varname = { \
         { _varname ## _used, 0, _count }, _varname ## _ev }
 

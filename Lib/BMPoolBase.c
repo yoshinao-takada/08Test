@@ -1,8 +1,8 @@
 #include "BMPoolBase.h"
 
-uint16_t BMPoolBase_FindAvailable(BMPoolBase_pt pbptr)
+int16_t BMPoolBase_FindAvailable(BMPoolBase_pt pbptr)
 {
-    uint16_t available = -1;
+    int16_t available = -1;
     for (uint16_t bitidx = 0; bitidx < pbptr->count; bitidx++)
     {
         uint16_t shortword = (bitidx >> 4);
@@ -10,8 +10,9 @@ uint16_t BMPoolBase_FindAvailable(BMPoolBase_pt pbptr)
         uint16_t bitmask = (1 << bitidx_in_shortword);
         if ((bitmask & pbptr->used[shortword]) == 0)
         {
-            available = bitidx;
+            available = (int16_t)bitidx;
             pbptr->used[shortword] |= bitmask;
+            break;
         }
     }
     return available;

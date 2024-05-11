@@ -2,23 +2,35 @@
 #define BMDEFS_H
 #include <stdint.h>
 
-#define BMARRAY_SIZE(_a)    sizeof(_a)/sizeof(_a[0])
+#define BMArray_SIZE(_a)    sizeof(_a)/sizeof(_a[0])
 
-#define BMALIGN_ARCH        8   /* x64, AArch64 */
-// #define BMALIGN_ARCH     4   /* ARM Cortex-M, -R, x86, AArch32 */
-// #define BMALIGN_ARCH     2   /* MSP430, RL78 */
-#define BMALIGN_MASK        (BMALIGN_ARCH - 1)
-#define BMALIGN_DOWN(_n)    (_n & ~BMALIGN_MASK)
-#define BMALIGN_UP(_n)      (BMALIGN_DOWN(_n) + BMALIGN_ARCH)
-#define BMALIGN_TO_ARCH(_n) \
-    ((_n & BMALIGN_MASK) ? BMALIGN_UP(_n) : BMALIGN_DOWN(_n))
+/*!
+\brief fill array with a value.
+\param _beginptr [in,out] _beginptr is modified in the macro. The final
+    value is equal to _endptr. Threfore _beginptr must be modifiable
+    with a real body.
+*/
+#define BMArray_FILL(_beginptr, _endptr, _val) \
+    for (; _beginptr != (_endptr); _beginptr++) \
+    { \
+        *_beginptr = _val; \
+    }
+
+#define BMAlign_ARCH        8   /* x64, AArch64 */
+// #define BMAlign_ARCH     4   /* ARM Cortex-M, -R, x86, AArch32 */
+// #define BMAlign_ARCH     2   /* MSP430, RL78 */
+#define BMAlign_MASK        (BMAlign_ARCH - 1)
+#define BMAlign_DOWN(_n)    (_n & ~BMAlign_MASK)
+#define BMAlign_UP(_n)      (BMAlign_DOWN(_n) + BMAlign_ARCH)
+#define BMAlign_TO_ARCH(_n) \
+    ((_n & BMAlign_MASK) ? BMAlign_UP(_n) : BMAlign_DOWN(_n))
 
 // Boundary alignment by 16.
-#define BMALIGN_MASK16      (15)
-#define BMALIGN_DOWN16(_n)  (_n & ~BMALIGN_MASK16)
-#define BMALIGN_UP16(_n)    (BMALIGN_DOWN16(_n) + 16)
-#define BMALIGN_TO16(_n) \
-    ((_n & BMALIGN_MASK16) ? BMALIGN_UP16(_n) : BMALIGN_DOWN16(_n))
+#define BMAlign_MASK16      (15)
+#define BMAlign_DOWN16(_n)  (_n & ~BMAlign_MASK16)
+#define BMAlign_UP16(_n)    (BMAlign_DOWN16(_n) + 16)
+#define BMAlign_TO16(_n) \
+    ((_n & BMAlign_MASK16) ? BMAlign_UP16(_n) : BMAlign_DOWN16(_n))
 
 typedef uint16_t BMStatus_t;
 typedef uint16_t BMEvId_t;

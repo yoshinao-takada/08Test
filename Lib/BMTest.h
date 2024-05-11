@@ -37,5 +37,4 @@ extern pthread_spinlock_t BMTest_lock;
 
 #define BMTest_ERRLOGBREAKEX(...) \
     BMTest_ERRLOGBREAK(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
-
 #endif /* BMTEST_H */
