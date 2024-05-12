@@ -13,7 +13,7 @@ DEBUG_OBJECTS = $(DEBUG_OBJ_DIR)/main.o $(DEBUG_OBJ_DIR)/BMQBaseUT.o \
 .PHONY	:	debug
 .PHONY	:	clean_debug
 debug	:	$(DEBUG_TARGET)
-$(DEBUG_TARGET)	:	$(DEBUG_OBJECTS)
+$(DEBUG_TARGET)	:	$(DEBUG_OBJECTS) $(DEBUG_BIN_DIR)/libBMLIB.a
 	$(CC) -o $@ $^ -L$(DEBUG_BIN_DIR) -lBMLIB -lpthread
 
 $(DEBUG_OBJ_DIR)/main.o	:	main.c
