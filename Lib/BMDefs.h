@@ -32,6 +32,9 @@
 #define BMAlign_TO16(_n) \
     ((_n & BMAlign_MASK16) ? BMAlign_UP16(_n) : BMAlign_DOWN16(_n))
 
+// Convert bit count to short word count.
+#define BMAlign_BC2SWC(_n)  (BMAlign_TO16(_n) >> 4)
+
 typedef uint16_t BMStatus_t;
 typedef uint16_t BMEvId_t;
 
@@ -47,4 +50,20 @@ typedef uint16_t BMEvId_t;
 #define BMEvId_TICK             0
 #define BMEvId_READBYTES        1
 #define BMEvId_BUFEMPTY         2
+
+#pragma region DECLARE_TERMINATABLE_LOOP_FUNCTION
+typedef enum {
+    BMActStatus_ACTIVE = 0,
+    BMActStatus_STOP = 1,
+    BMActStatus_ERRSTOP = 2,
+} BMActStatus_t;
+
+typedef struct {
+    void* ctx; // context able to have any data.
+    void* errinfo; // BMAct_f methods use it to notify error info.
+    BMActStatus_t stat;
+} BMActCtx_t, *BMActCtx_pt;
+
+typedef void (*BMAct_f)(BMActCtx_pt ctx);
+#pragma endregion DECLARE_TERMINATABLE_LOOP_FUNCTION
 #endif /* BMDEFS_H */
