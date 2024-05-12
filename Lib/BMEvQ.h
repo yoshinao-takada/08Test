@@ -32,9 +32,10 @@ typedef struct {
 \brief get the first element in the queue.
 \param _varptr [in,out] The event queue
 \param evptrptr [out] pointer-pointer to the event message
-\return 1: success, 0: no event message is available.
+\return SUCCESS: success,
+\return NOTFOUND: queue is empty and failed.
 */
-uint16_t BMEvQ_Get(BMEvQ_pt _varptr, BMEv_pt* evptrptr);
+BMStatus_t BMEvQ_Get(BMEvQ_pt _varptr, BMEv_pt* evptrptr);
 
 /*!
 \brief put an element into the queue.
