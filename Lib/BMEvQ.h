@@ -3,6 +3,7 @@
 #include "BMDefs.h"
 #include "BMEv.h"
 #include "BMQBase.h"
+#include <memory.h>
 typedef struct {
     BMQBase_t base;
     BMEv_pt *evptrs;
@@ -68,11 +69,20 @@ typedef struct {
     static BMEvQPool_t _varname = { \
         { _varname ## _used, 0, _count }, _varname ## _evqs }
 
-#define BMEvQPool_INIT(_varptr) BMPoolBase_INIT((BMPoolBase_pt)_varptr); \
-    for (uint16_t _i = 0; _i < (_varptr)->base.count; _i++) \
+#define BMEvQPool_INIT(_varptr) \
+BMPoolBase_INIT((BMPoolBase_pt)(_varptr)); \
+{ \
+    BMEvQPool_pt varptr = (BMEvQPool_pt)(_varptr); \
+    BMEvQ_pt begin = varptr->evqs; \
+    BMEvQ_pt const end = begin + varptr->base.count; \
+    BMEvQ_t template = { begin->base, begin->evptrs }; \
+    for (; begin != end; begin++) \
     { \
-        BMEvQ_INIT((_varptr)->evqs + _i); \
-    }
+        memcpy(begin, &template, sizeof(BMEvQ_t)); \
+        BMEvQ_INIT(begin); \
+        template.evptrs += template.base.count; \
+    } \
+}
 
 #define BMEvQPool_DEINIT(_varptr) BMPoolBase_DEINIT((BMPoolBase_pt)_varptr); \
     for (uint16_t _i = 0; _i < (_varptr)->base.count; _i++) \

@@ -18,13 +18,14 @@ typedef struct {
     static uint16_t _varname ## _used[BMAlign_TO16(_count) >> 4]; \
     static BMPoolBase_t _varname = { _varname ## _used, 0, _count }
 
-#define BMPoolBase_INIT(_pbptr) \
+#define BMPoolBase_INIT(_pbptr) { \
     pthread_spin_init(&(_pbptr)->lock, PTHREAD_PROCESS_PRIVATE); \
     uint16_t _size_of_used = BMAlign_TO16((_pbptr)->count) >> 4; \
     for (uint16_t _i = 0; _i < _size_of_used; _i++) \
     { \
         (_pbptr)->used[_i] = 0; \
-    }
+    } \
+}
 
 #define BMPoolBase_DEINIT(_pbptr) \
     pthread_spin_destroy(&(_pbptr)->lock)
