@@ -8,7 +8,8 @@ DEBUG_TARGET = $(DEBUG_BIN_DIR)/Test.exe
 RELEASE_TARGET = $(RELEASE_BIN_DIR)/Test.exe
 DEBUG_OBJECTS = $(DEBUG_OBJ_DIR)/main.o $(DEBUG_OBJ_DIR)/BMQBaseUT.o \
 	$(DEBUG_OBJ_DIR)/BMPoolBaseUT.o $(DEBUG_OBJ_DIR)/BMEvUT.o \
-	$(DEBUG_OBJ_DIR)/BMEvQUT.o $(DEBUG_OBJ_DIR)/BMDefsUT.o
+	$(DEBUG_OBJ_DIR)/BMEvQUT.o $(DEBUG_OBJ_DIR)/BMDefsUT.o \
+	$(DEBUG_OBJ_DIR)/BMTickUT.o
 
 .PHONY	:	debug
 .PHONY	:	clean_debug
@@ -32,6 +33,9 @@ $(DEBUG_OBJ_DIR)/BMEvUT.o	:	BMEvUT.c
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 
 $(DEBUG_OBJ_DIR)/BMEvQUT.o	:	BMEvQUT.c
+	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
+
+$(DEBUG_OBJ_DIR)/BMTickUT.o	:	BMTickUT.c
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 
 clean_debug	:

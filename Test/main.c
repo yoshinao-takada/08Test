@@ -1,6 +1,8 @@
 #define BMTEST_MAIN_C
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <strings.h>
 #include "BMDefs.h"
 #include "BMTest.h"
 
@@ -9,13 +11,26 @@ BMStatus_t BMQBaseUT();
 BMStatus_t BMPoolBaseUT();
 BMStatus_t BMEvUT();
 BMStatus_t BMEvQUT();
+BMStatus_t BMTickUT();
 
+int HasFlag(int argc, const char* argv[], const char* strFlag)
+{
+    return (argc > 1) && (!strcasecmp(argv[1], strFlag)) ? 1: 0;
+}
+
+#define HAS_TICK(_argc, _argv) HasFlag(_argc, _argv, "TICK")
 
 int main(int argc, const char* argv[])
 {
     BMStatus_t status = BMStatus_SUCCESS;
     BMTest_START;
     do {
+        if (HAS_TICK(argc, argv))
+        {
+            status = BMTickUT();
+            if (status) BMTest_ERRLOGBREAKEX("Fail in BMTickUT()");
+            break;
+        }
         if (BMStatus_SUCCESS != (status = BMDefsUT()))
         {
             BMTest_ERRLOGBREAKEX("Fail in BMDefsUT()");

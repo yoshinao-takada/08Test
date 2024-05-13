@@ -2,6 +2,7 @@
 #include <signal.h>
 #include <assert.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #pragma region TIME_CONVERSION_METHODS
 static void TimeVal_FromMillisec(struct timeval* t, uint16_t millisec)
@@ -127,6 +128,7 @@ BMStatus_t BMTick_Main(BMAct_f act, BMActCtx_pt actctx)
     do {
         BMDispatchers_SCrunch();
         act(actctx);
+        pause();
     } while (actctx->stat == BMActStatus_ACTIVE);
     status = (actctx->stat == BMActStatus_ERRSTOP) ?
         BMStatus_FAILURE : BMStatus_SUCCESS;

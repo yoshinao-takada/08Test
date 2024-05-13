@@ -57,6 +57,25 @@ static BMStatus_t BMAlign16()
     return status;
 }
 
+static BMStatus_t BMAlign_BitCountToShortWord()
+{
+    static const uint16_t BC[] = { 1, 17, 100, 45 };
+    static const uint16_t USC[] = { 1, 2, 7, 3 };
+    BMStatus_t status = BMStatus_SUCCESS;
+    do {
+        for (int i = 0; i < BMArray_SIZE(BC); i++)
+        {
+            if (USC[i] != BMAlign_BC2SWC(BC[i]))
+            {
+                status = BMStatus_FAILURE;
+                BMTest_ERRLOGBREAKEX("USC[%d] != BMAlign_BC2SWC(BC[%d])",
+                    i, i);
+            }
+        }
+    } while (0);
+    BMTest_ENDFUNC(status);
+    return status;
+}
 BMStatus_t BMDefsUT()
 {
     BMStatus_t status = BMStatus_SUCCESS;
@@ -68,6 +87,10 @@ BMStatus_t BMDefsUT()
         if (BMStatus_SUCCESS != (status = BMAlign16()))
         {
             BMTest_ERRLOGBREAKEX("Fail in BMAlign16()");
+        }
+        if (BMStatus_SUCCESS != (status = BMAlign_BitCountToShortWord()))
+        {
+            BMTest_ERRLOGBREAKEX("Fail in BMAlign_BitCountToShortWord()");
         }
     } while (0);
     BMTest_ENDFUNC(status);
