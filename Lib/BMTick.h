@@ -6,16 +6,30 @@
 #define STATIC_DISPATCHER_COUNT     4
 
 typedef struct {
-    uint16_t count, ini;
+    uint16_t count, interval;
     void* param;
     void* result;
     void* (*handler)(void*);
 } BMDispatcher_t, *BMDispatcher_pt;
 
-#define BMDispatcher_CLEAR(_dispptr) \
+/*!
+\brief clear a dispatcher.
+*/
+#define BMDispatcher_CLEAR(_dispptr) { \
     (_dispptr)->count = (_dispptr)->ini = 0; \
     (_dispptr)->param = (_dispptr)->result = NULL; \
-    (_dispptr)->handler = NULL
+    (_dispptr)->handler = NULL; \
+}
+
+/*!
+\brief set parameters of a dispatcher.
+*/
+#define BMDispatcher_SET(_dispptr, _ct, _it, _par, _hdlr) { \
+    (_dispptr)->count = _ct; \
+    (_dispptr)->interval = _it; \
+    (_dispptr)->param = _par; \
+    (_dispptr)->handler = _hdlr; \
+}
 
 BMStatus_t BMDispatcher_Dispatch(BMDispatcher_pt dispatcher);
 
@@ -53,7 +67,7 @@ BMPoolBase_INIT(&(_varptr)->base); \
     BMDispatcher_pt const _end = _begin + (_varptr)->base.count; \
     for (; _begin != _end; _begin++) \
     { \
-        _begin->count = _begin->ini = 0; \
+        _begin->count = _begin->interval = 0; \
         _begin->param = _begin->result = NULL; \
         _begin->handler = NULL; \
     } \

@@ -28,7 +28,7 @@ BMStatus_t BMDispatcher_Dispatch(BMDispatcher_pt dispatcher)
     {
         if (--(dispatcher->count) == 0)
         {
-            dispatcher->count = dispatcher->ini;
+            dispatcher->count = dispatcher->interval;
             dispatcher->result = dispatcher->handler(dispatcher->param);
             if (dispatcher->result != dispatcher->param)
             {
