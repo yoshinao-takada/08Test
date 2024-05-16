@@ -16,7 +16,7 @@ typedef struct {
 \brief clear a dispatcher.
 */
 #define BMDispatcher_CLEAR(_dispptr) { \
-    (_dispptr)->count = (_dispptr)->ini = 0; \
+    (_dispptr)->count = (_dispptr)->interval = 0; \
     (_dispptr)->param = (_dispptr)->result = NULL; \
     (_dispptr)->handler = NULL; \
 }
@@ -85,6 +85,20 @@ BMStatus_t BMDispatchers_Crunch(BMDispatchers_pt disps);
 \brief crunch queued events in the static dispatchers.
 */
 BMStatus_t BMDispatchers_SCrunch();
+
+/*!
+\brief Get a dispatcher from a pool pointed by dispsptr.
+*/
+BMDispatcher_pt BMDispatchers_Get(BMDispatchers_pt dispsptr);
+
+/*!
+\brief Return a dispatcher to a pool.
+\param dispsptr [in,out] pointer to the pool
+\param dispptr [in] pointer to the dispatcher.
+\return BMStatus_SUCCESS : success
+*/
+BMStatus_t BMDispatchers_Return
+(BMDispatchers_pt dispsptr, BMDispatcher_pt dispptr);
 
 /*!
 \brief setup interval timer and SIGALRM

@@ -65,6 +65,41 @@ BMStatus_t BMDispatchers_SCrunch()
     return BMDispatchers_Crunch(&dispatchers);
 }
 
+BMDispatcher_pt BMDispatchers_Get(BMDispatchers_pt dispsptr)
+{
+    BMDispatcher_pt dispptr = NULL;
+    BMPoolBase_LOCK(&dispsptr->base);
+    do {
+        uint16_t idx = BMPoolBase_FindAvailable(&dispsptr->base);
+        if (idx >= 0) break;
+        dispptr = dispsptr->dispatchers + idx;
+    } while (0);
+    BMPoolBase_UNLOCK(&dispsptr->base);
+    return dispptr;
+}
+
+BMStatus_t BMDispatchers_Return
+(BMDispatchers_pt dispsptr, BMDispatcher_pt dispptr)
+{
+    BMStatus_t status = BMStatus_SUCCESS;
+    BMPoolBase_LOCK(&dispsptr->base);
+    do {
+        ptrdiff_t offs = dispptr - dispsptr->dispatchers;
+        if (offs < 0 || dispsptr->base.count <= offs)
+        { // out of range
+            status = BMStatus_INVALID;
+            break;
+        }
+        if (status = BMPoolBase_Return(&dispsptr->base, offs))
+        {
+            break;
+        }
+        BMDispatcher_CLEAR(dispptr);
+    } while (0);
+    BMPoolBase_UNLOCK(&dispsptr->base);
+    return status;
+}
+
 void SIGALRMHandler(int sig)
 {
     if (BMEvQ_Put(dispatchers.evq, &evtick))
@@ -114,6 +149,7 @@ BMStatus_t BMTick_Deinit()
             break;
         }
     } while (0);
+    BMDispatchers_DEINIT(&dispatchers);
     return status;
 }
 

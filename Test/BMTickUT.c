@@ -1,6 +1,6 @@
 #include "BMTick.h"
 #include "BMTest.h"
-
+#define  POOL_SIZE  8
 BMStatus_t BMDispatcherUT();
 BMStatus_t BMDispatchersUT();
 BMStatus_t BMTick_IntegratedUT();
@@ -110,12 +110,19 @@ BMStatus_t BMDispatcherUT()
     return status;
 }
 
+
 BMStatus_t BMDispatchersUT()
 {
     BMStatus_t status = BMStatus_SUCCESS;
+    BMEvQ_DECL(evq, 16);
+    BMDispatchers_DECL(disps, POOL_SIZE);
+    BMEv_t ev = { BMEvId_TICK, 0, NULL };
+    BMEvQ_INIT(&evq);
+    BMDispatchers_INIT(&disps, &evq);
     do {
-
     } while (0);
+    BMEvQ_DEINIT(&evq);
+    BMDispatchers_DEINIT(&disps);
     BMTest_ENDFUNC(status);
     return status;
 }
