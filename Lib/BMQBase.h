@@ -34,4 +34,14 @@ uint16_t BMQBase_NextWridx(BMQBase_pt qbaseptr);
 \brief get the next value of rdidx.
 */
 uint16_t BMQBase_NextRdidx(BMQBase_pt qbaseptr);
+
+/*!
+\brief get a byte count in the queue.
+*/
+uint16_t BMQBase_Available(BMQBase_pt qbaseptr);
+
+/*!
+\brief get a byte count vacant in the queue.
+*/
+uint16_t BMQBase_Vacant(BMQBase_pt qbaseptr);
 #endif /* BMQBASE_H */

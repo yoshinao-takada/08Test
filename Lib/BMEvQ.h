@@ -80,16 +80,11 @@ BMPoolBase_INIT((BMPoolBase_pt)(_varptr)); \
     for (; begin != end; begin++) \
     { \
         memcpy(begin, &template, sizeof(BMEvQ_t)); \
-        BMEvQ_INIT(begin); \
         template.evptrs += template.base.count; \
     } \
 }
 
-#define BMEvQPool_DEINIT(_varptr) BMPoolBase_DEINIT((BMPoolBase_pt)_varptr); \
-    for (uint16_t _i = 0; _i < (_varptr)->base.count; _i++) \
-    { \
-        BMEvQ_DEINIT((_varptr)->evqs + _i); \
-    }
+#define BMEvQPool_DEINIT(_varptr) BMPoolBase_DEINIT((BMPoolBase_pt)_varptr)
 
 
 #define BMEvQPool_LOCK(_varptr) BMPoolBase_LOCK((BMPoolBase_pt)_varptr)

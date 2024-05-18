@@ -36,7 +36,11 @@ BMEvQ_pt BMEvQPool_Get(BMEvQPool_pt poolptr)
     BMEvQPool_LOCK(poolptr);
     {
         int16_t available = BMPoolBase_FindAvailable((BMPoolBase_pt)poolptr);
-        evqptr = (available >= 0) ? (poolptr->evqs + available) : NULL;
+        if (available >= 0)
+        {
+            evqptr = poolptr->evqs + available;
+            BMEvQ_INIT(evqptr);
+        }
     }
     BMEvQPool_UNLOCK(poolptr);
     return evqptr;
@@ -48,9 +52,11 @@ BMStatus_t BMEvQPool_Return(BMEvQPool_pt poolptr, BMEvQ_pt qptr)
     BMEvQPool_LOCK(&poolptr->base);
     do {
         ptrdiff_t offs = qptr - (poolptr)->evqs;
-        BMEvQ_UNLOCK(&qptr);
-        qptr->base.wridx = qptr->base.rdidx = 0;
         status = BMPoolBase_Return((BMPoolBase_pt)poolptr, offs);
+        if (status) break;
+        // clear the queue
+        qptr->base.wridx = qptr->base.rdidx = 0;
+        BMEvQ_DEINIT(qptr);
     } while (0);
     BMEvQPool_UNLOCK(&poolptr->base);
     return status;

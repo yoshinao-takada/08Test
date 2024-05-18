@@ -9,10 +9,10 @@ DEBUG_TARGET = $(DEBUG_BIN_DIR)/libBMLIB.a
 RELEASE_TARGET = $(RELEASE_BIN_DIR)/libBMLIB.a
 DEBUG_OBJECTS = $(DEBUG_OBJ_DIR)/BMEv.o $(DEBUG_OBJ_DIR)/BMPoolBase.o \
 	$(DEBUG_OBJ_DIR)/BMQBase.o $(DEBUG_OBJ_DIR)/BMEvQ.o \
-	$(DEBUG_OBJ_DIR)/BMTick.o
+	$(DEBUG_OBJ_DIR)/BMTick.o $(DEBUG_OBJ_DIR)/BMRingBuf.o
 RELEASE_OBJECTS = $(RELEASE_OBJ_DIR)/BMEv.o $(RELEASE_OBJ_DIR)/BMPoolBase.o \
 	$(RELEASE_OBJ_DIR)/BMQBase.o $(RELEASE_OBJ_DIR)/BMEvQ.o \
-	$(RELEASE_OBJ_DIR)/BMTick.o
+	$(RELEASE_OBJ_DIR)/BMTick.o $(RELEASE_OBJ_DIR)/BMRingBuf.o
 
 debug	:	$(DEBUG_TARGET)
 $(DEBUG_TARGET)	:	$(DEBUG_OBJECTS)
@@ -36,6 +36,10 @@ $(DEBUG_OBJ_DIR)/BMEvQ.o	:	BMEvQ.c BMEvQ.h BMEv.h BMPoolBase.h BMQBase.h BMDefs.
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 
 $(DEBUG_OBJ_DIR)/BMTick.o	:	BMTick.c BMTick.h BMEv.h BMPoolBase.h BMEvQ.h BMQBase.h BMDefs.h
+	mkdir -p $(DEBUG_OBJ_DIR)
+	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
+
+$(DEBUG_OBJ_DIR)/BMRingBuf.o	:	BMRingBuf.c BMRingBuf.h BMPoolBase.h BMQBase.h BMDefs.h
 	mkdir -p $(DEBUG_OBJ_DIR)
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 
