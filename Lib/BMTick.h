@@ -82,11 +82,6 @@ BMPoolBase_INIT(&(_varptr)->base); \
 BMStatus_t BMDispatchers_Crunch(BMDispatchers_pt disps);
 
 /*!
-\brief crunch queued events in the static dispatchers.
-*/
-BMStatus_t BMDispatchers_SCrunch();
-
-/*!
 \brief Get a dispatcher from a pool pointed by dispsptr.
 */
 BMDispatcher_pt BMDispatchers_Get(BMDispatchers_pt dispsptr);
@@ -99,6 +94,21 @@ BMDispatcher_pt BMDispatchers_Get(BMDispatchers_pt dispsptr);
 */
 BMStatus_t BMDispatchers_Return
 (BMDispatchers_pt dispsptr, BMDispatcher_pt dispptr);
+
+/*!
+\brief crunch queued events in the static dispatchers.
+*/
+BMStatus_t BMDispatchers_SCrunch();
+
+/*!
+\brief Get a dispatcher from the static dispatchers.
+*/
+BMDispatcher_pt BMDispatchers_SGet();
+
+/*!
+\brief Return a dispatcher to the static dispatchers.
+*/
+BMStatus_t BMDispatchers_SReturn(BMDispatcher_pt dispptr);
 
 /*!
 \brief setup interval timer and SIGALRM

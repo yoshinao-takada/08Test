@@ -67,5 +67,7 @@ typedef struct {
 } BMActCtx_t, *BMActCtx_pt;
 
 typedef void (*BMAct_f)(BMActCtx_pt ctx);
+
+typedef void* (*BMThread_f)(void* param);
 #pragma endregion DECLARE_TERMINATABLE_LOOP_FUNCTION
 #endif /* BMDEFS_H */

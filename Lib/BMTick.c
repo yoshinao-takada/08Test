@@ -60,18 +60,13 @@ BMStatus_t BMDispatchers_Crunch(BMDispatchers_pt disps)
     return status;
 }
 
-BMStatus_t BMDispatchers_SCrunch()
-{
-    return BMDispatchers_Crunch(&dispatchers);
-}
-
 BMDispatcher_pt BMDispatchers_Get(BMDispatchers_pt dispsptr)
 {
     BMDispatcher_pt dispptr = NULL;
     BMPoolBase_LOCK(&dispsptr->base);
     do {
         uint16_t idx = BMPoolBase_FindAvailable(&dispsptr->base);
-        if (idx >= 0) break;
+        if (idx < 0) break;
         dispptr = dispsptr->dispatchers + idx;
     } while (0);
     BMPoolBase_UNLOCK(&dispsptr->base);
@@ -98,6 +93,21 @@ BMStatus_t BMDispatchers_Return
     } while (0);
     BMPoolBase_UNLOCK(&dispsptr->base);
     return status;
+}
+
+BMStatus_t BMDispatchers_SCrunch()
+{
+    return BMDispatchers_Crunch(&dispatchers);
+}
+
+BMDispatcher_pt BMDispatchers_SGet()
+{
+    return BMDispatchers_Get(&dispatchers);
+}
+
+BMStatus_t BMDispatchers_SReturn(BMDispatcher_pt dispptr)
+{
+    return BMDispatchers_Return(&dispatchers, dispptr);
 }
 
 void SIGALRMHandler(int sig)
@@ -155,7 +165,7 @@ BMStatus_t BMTick_Deinit()
 
 double BMTick_GetInterval()
 {
-    return 1.0e-6 * it_new.it_interval.tv_usec;
+    return 1.0e-6 * it_new.it_interval.tv_usec + it_new.it_interval.tv_sec;
 }
 
 BMStatus_t BMTick_Main(BMAct_f act, BMActCtx_pt actctx)
