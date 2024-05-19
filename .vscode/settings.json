@@ -4,6 +4,7 @@
         "bmpoolbase.h": "c",
         "bmtick.h": "c",
         "bmevq.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "bmringbuf.h": "c"
     }
 }

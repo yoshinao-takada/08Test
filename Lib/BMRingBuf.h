@@ -17,12 +17,12 @@ typedef struct {
 typedef const BMRingBuf_t *BMRingBuf_cpt;
 
 #define BMRingBuf_DECL(_varname, _bufsize) \
-    uint8_t* _varname ## _buf[_bufsize]; \
+    uint8_t _varname ## _buf[_bufsize]; \
     BMRingBuf_t _varname = { BMQBase(_bufsize), _varname ## _buf }
 
 
 #define BMRingBuf_SDECL(_varname, _bufsize) \
-    static uint8_t* _varname ## _buf[_bufsize]; \
+    static uint8_t _varname ## _buf[_bufsize]; \
     static BMRingBuf_t _varname = { BMQBase(_bufsize), _varname ## _buf }
 
 #define BMRingBuf_INIT(_varptr) BMQBase_INIT(&(_varptr)->base)
