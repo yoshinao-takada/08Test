@@ -13,6 +13,7 @@ BMStatus_t BMEvUT();
 BMStatus_t BMEvQUT();
 BMStatus_t BMTickUT();
 BMStatus_t BMRingBufUT();
+BMStatus_t BMDLNodeUT();
 
 int HasFlag(int argc, const char* argv[], const char* strFlag)
 {
@@ -55,6 +56,10 @@ int main(int argc, const char* argv[])
         if (BMStatus_SUCCESS != (status = BMRingBufUT()))
         {
             BMTest_ERRLOGBREAKEX("Fail in BMRingBufUT()");
+        }
+        if (BMStatus_SUCCESS != (status = BMDLNodeUT()))
+        {
+            BMTest_ERRLOGBREAKEX("Fail in BMDLNodeUT()");
         }
     } while (0);
     BMTest_ENDFUNC(status);
