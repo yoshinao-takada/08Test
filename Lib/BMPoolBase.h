@@ -44,4 +44,7 @@ int16_t BMPoolBase_FindAvailable(BMPoolBase_pt pbptr);
 BMStatus_t BMPoolBase_Return(BMPoolBase_pt pbptr, ptrdiff_t offs);
 
 uint16_t BMPoolBase_CountUsed(BMPoolBase_pt pbptr);
+
+#define BMPoolBase_CountUnused(pbptr) \
+    ((pbptr)->count - BMPoolBase_CountUsed(pbptr))
 #endif /* BMPOOLBASE_H */
