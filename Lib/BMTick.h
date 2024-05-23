@@ -1,7 +1,7 @@
 #if !defined(BMTICK_H)
 #define BMTICK_H
 #include "BMPoolBase.h"
-#include "BMEvQ.h"
+#include "BMDLNode.h"
 
 #define STATIC_DISPATCHER_COUNT     4
 
@@ -36,7 +36,7 @@ BMStatus_t BMDispatcher_Dispatch(BMDispatcher_pt dispatcher);
 typedef struct {
     BMPoolBase_t base;
     BMDispatcher_pt dispatchers;
-    BMEvQ_pt evq;
+    BMDLNode_pt evq;
 } BMDispatchers_t, *BMDispatchers_pt;
 
 #define BMDispatchers_DECL(_varname, _poolsize) \
@@ -116,7 +116,7 @@ BMStatus_t BMDispatchers_SReturn(BMDispatcher_pt dispptr);
 \param evqptr [in] event queue pointer
 \param evpoolptr [in] event pool pointer
 */
-BMStatus_t BMTick_Init(uint16_t itmillisec, BMEvQ_pt evqptr);
+BMStatus_t BMTick_Init(uint16_t itmillisec, BMDLNode_pt evqptr);
 
 /*!
 \brief deinitialize timer and SIGALRM

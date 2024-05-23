@@ -34,6 +34,8 @@ void BMDLNode_AddPrev(BMDLNode_pt anchor, BMDLNode_pt newnode)
 
 BMDLNode_pt BMDLNode_GetNext(BMDLNode_pt anchor)
 {
+    // check empty link.
+    if (BMDLNode_EMPTY(anchor)) return NULL;
     pthread_spin_lock(&anchor->lock);
     BMDLNode_pt curnext = anchor->next;
     anchor->next = curnext->next;
@@ -45,6 +47,8 @@ BMDLNode_pt BMDLNode_GetNext(BMDLNode_pt anchor)
 
 BMDLNode_pt BMDLNode_GetPrev(BMDLNode_pt anchor)
 {
+    // check empty link.
+    if (BMDLNode_EMPTY(anchor)) return NULL;
     pthread_spin_lock(&anchor->lock);
     BMDLNode_pt curprev = anchor->prev;
     anchor->prev = curprev->prev;

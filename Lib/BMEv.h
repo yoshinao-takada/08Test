@@ -2,6 +2,8 @@
 #define BMEV_H
 #include "BMDefs.h"
 #include "BMPoolBase.h"
+#include "BMDLNode.h"
+
 typedef struct {
     BMEvId_t id;
     uint16_t listeners;
@@ -10,6 +12,16 @@ typedef struct {
 
 #define BMEv_INIT(_evptr) { \
     (_evptr)->id = 0; (_evptr)->listeners = 0; (_evptr)->param = NULL; }
+
+/*!/
+\brief put an event object into a queue.
+*/
+BMStatus_t BMEv_PutQ(BMEv_pt ev, BMDLNode_pt qptr);
+
+/*!
+\brief get an event object from a queue.
+*/
+BMEv_pt BMEv_GetQ(BMDLNode_pt qptr);
 
 typedef struct {
     BMPoolBase_t base;

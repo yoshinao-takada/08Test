@@ -16,6 +16,8 @@ typedef struct BMDLNode {
     pthread_spinlock_t lock;
 } BMDLNode_t, *BMDLNode_pt;
 
+#define BMDLNode_HAS_ANY(_anchorptr) ((_anchorptr)->prev != (_anchorptr))
+#define BMDLNode_EMPTY(_anchorptr) ((_anchorptr)->prev == (_anchorptr))
 /*!
 \brief count nodes linked to the anchor.
 */
