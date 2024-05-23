@@ -1,4 +1,6 @@
 #include "BMTick.h"
+#include "BMEv.h"
+#include "BMDLNode.h"
 #include <signal.h>
 #include <assert.h>
 #include <sys/time.h>
@@ -45,9 +47,10 @@ BMStatus_t BMDispatchers_Crunch(BMDispatchers_pt disps)
     BMPoolBase_LOCK(&disps->base);
     do {
         BMEv_pt evptr = NULL;
-        // if evq is empty, skip processing.
-        if (BMEvQ_Get(disps->evq, &evptr)) break;
+        // Get a queued event. Exit if the queue is empty.
+        if (!(evptr = BMEv_GetQ(disps->evq))) break;
 
+        // Process the queued event.
         BMDispatcher_pt iter = disps->dispatchers;
         BMDispatcher_pt const end = iter + disps->base.count;
         for (; iter != end; iter++)
@@ -112,7 +115,7 @@ BMStatus_t BMDispatchers_SReturn(BMDispatcher_pt dispptr)
 
 void SIGALRMHandler(int sig)
 {
-    if (BMEvQ_Put(dispatchers.evq, &evtick))
+    if (BMEv_PutQ(&evtick, dispatchers.evq))
     { // evq is full and fail to put.
         assert(0);
     }
@@ -121,7 +124,7 @@ void SIGALRMHandler(int sig)
 static struct itimerval it_new, it_old;
 static struct sigaction sa_new, sa_old;
 
-BMStatus_t BMTick_Init(uint16_t itmillisec, BMEvQ_pt evqptr)
+BMStatus_t BMTick_Init(uint16_t itmillisec, BMDLNode_pt evqptr)
 {
     BMStatus_t status = BMStatus_SUCCESS;
     do {        

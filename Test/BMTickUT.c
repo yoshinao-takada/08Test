@@ -1,4 +1,5 @@
 #include "BMTick.h"
+#include "BMEv.h"
 #include "BMTest.h"
 #define  POOL_SIZE  4
 #define  EVQ_SIZE   16
@@ -114,6 +115,7 @@ BMStatus_t BMDispatcherUT()
 {
     BMDispatcher_t disp;
     BMStatus_t status = BMDispatcherUTCore(&disp);
+    BMTest_ENDFUNC(status);
     return status;
 }
 
@@ -174,11 +176,12 @@ static void ClearDispatchers(BMDispatcher_pt *dispptrs)
 BMStatus_t BMDispatchersUT()
 {
     BMStatus_t status = BMStatus_SUCCESS;
-    BMEvQ_SDECL(evq, EVQ_SIZE);
+    BMDLNodePool_SInit();
     BMDispatchers_SDECL(disps, POOL_SIZE);
     BMEv_t ev = { BMEvId_TICK, 0, NULL };
-    BMEvQ_INIT(&evq);
-    BMDispatchers_INIT(&disps, &evq);
+    BMDLNode_pt evqptr = BMDLNodePool_SGet();
+    pthread_spin_init(&evqptr->lock, PTHREAD_PROCESS_PRIVATE);
+    BMDispatchers_INIT(&disps, evqptr);
     BMDispatcher_pt dispptrs[POOL_SIZE];
     do {
         // Step 1: Get dispatchers from the pool
@@ -211,13 +214,21 @@ BMStatus_t BMDispatchersUT()
         #pragma region STEP2
         GetDispatchers(dispptrs, &disps);
         SetDispatchers(dispptrs);
-        while (BMStatus_SUCCESS == BMEvQ_Put(&evq, &ev)) ;
+        for (int i = 0; i < (EVQ_SIZE - 1); i++)
+        {
+            if (BMStatus_SUCCESS != BMEv_PutQ(&ev, evqptr))
+            {
+                status = BMStatus_FAILURE;
+                BMTest_ERRLOGBREAKEX("Fail in BMEv_PutQ()");
+            }
+        }
+        if (status) break;
         if (ev.listeners != (EVQ_SIZE - 1))
         {
             status = BMStatus_INVALID;
             BMTest_ERRLOGBREAKEX("(ev.listeners != (EVQ_SIZE - 1))");
         }
-        while (evq.base.wridx != evq.base.rdidx)
+        while (BMDLNode_HAS_ANY(evqptr))
         {
             if (BMStatus_SUCCESS != BMDispatchers_Crunch(&disps))
             {
@@ -233,9 +244,9 @@ BMStatus_t BMDispatchersUT()
         {
             for (int j = 0; j < 4; j++)
             {
-                BMEvQ_Put(&evq, &ev);
+                BMEv_PutQ(&ev, evqptr);
             }
-            while (evq.base.wridx != evq.base.rdidx)
+            while (BMDLNode_Count(evqptr))
             {
                 if (BMStatus_SUCCESS != BMDispatchers_Crunch(&disps))
                 {
@@ -256,7 +267,8 @@ BMStatus_t BMDispatchersUT()
         }
         #pragma endregion STEP2
     } while (0);
-    BMEvQ_DEINIT(&evq);
+    pthread_spin_destroy(&evqptr->lock);
+    BMDLNodePool_SDeinit();
     BMDispatchers_DEINIT(&disps);
     BMTest_ENDFUNC(status);
     return status;
@@ -318,17 +330,17 @@ static void act(BMActCtx_pt ctx)
 BMStatus_t BMTick_IntegratedUT()
 {
     BMStatus_t status = BMStatus_SUCCESS;
-    BMEvQ_SDECL(evq, EVQ_SIZE);
-    BMEvQ_INIT(&evq);
+    BMDLNodePool_SInit();
+    BMDLNode_pt evqptr = BMDLNodePool_SGet();
     BMEv_t ev = { BMEvId_TICK, 0, NULL };
     do {
         if (BMStatus_SUCCESS != 
-            (status = BMTick_Init(10, &evq)))
+            (status = BMTick_Init(10, evqptr)))
         {
             BMTest_ERRLOGBREAKEX("Fail in BMTick_Init()");
         }
         if (BMStatus_SUCCESS != 
-            (status = SetIntegratedDispatchers(10, &evq)))
+            (status = SetIntegratedDispatchers(10, evqptr)))
         {
             BMTest_ERRLOGBREAKEX("Fail in SetIntegratedDispatchers()");
         }
@@ -338,11 +350,12 @@ BMStatus_t BMTick_IntegratedUT()
             BMTest_ERRLOGBREAKEX("Fail in BMTick_Main()");
         }
         if (BMStatus_SUCCESS != 
-            (status = BMTick_Deinit(10, &evq)))
+            (status = BMTick_Deinit(10, evqptr)))
         {
             BMTest_ERRLOGBREAKEX("Fail in BMTick_Deinit()");
         }
     } while (0);
+    BMDLNodePool_SDeinit();
     BMTest_ENDFUNC(status);
     return status;
 }

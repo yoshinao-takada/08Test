@@ -10,7 +10,6 @@ BMStatus_t BMDefsUT();
 BMStatus_t BMQBaseUT();
 BMStatus_t BMPoolBaseUT();
 BMStatus_t BMEvUT();
-BMStatus_t BMEvQUT();
 BMStatus_t BMTickUT();
 BMStatus_t BMRingBufUT();
 BMStatus_t BMDLNodeUT();
@@ -48,10 +47,6 @@ int main(int argc, const char* argv[])
         if (BMStatus_SUCCESS != (status = BMEvUT()))
         {
             BMTest_ERRLOGBREAKEX("Fail in BMEvUT()");
-        }
-        if (BMStatus_SUCCESS != (status = BMEvQUT()))
-        {
-            BMTest_ERRLOGBREAKEX("Fail in BMEvQUT()");
         }
         if (BMStatus_SUCCESS != (status = BMRingBufUT()))
         {
