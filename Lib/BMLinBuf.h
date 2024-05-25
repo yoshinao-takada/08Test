@@ -1,7 +1,7 @@
 #if !defined(BMLINBUF_H)
 #define BMLINBUF_H
 #include "BMPoolBase.h"
-#include "BMQBase.h"
+#include <memory.h>
 #define BMLinBuf_STATIC_POOL_SIZE   4
 #define BMLinBuf_STATIC_BUF_SIZE    32
 #pragma region DECLARE_BMLinBuf_t
@@ -14,72 +14,66 @@ typedef struct {
 } BMLinBuf_t, *BMLinBuf_pt;
 typedef const BMLinBuf_t *BMLinBuf_cpt;
 
-/*!
-\brief Clear the buffer.
-*/
-#define BMLinBuf_CLEAR(_buf) (_buf).filled = (_buf).crunched = 0
-
-/*!
-\brief Get the pointer pointing the byte to write.
-*/
-#define BMLinBuf_WRPTR(_buf) ((_buf).buffer + (_buf).filled)
-
-/*!
-\brief Get the pointer pointing the byte to read.
-*/
-#define BMLinBuf_RDPTR(_buf) ((_buf).buffer + (_buf).crunched)
-
-/*!
-\brief Available byte count in the buffer.
-*/
-#define BMLinBuf_AVAILABLE(_buf) ((_buf).size - (_buf).filled)
-
 #define BMLinBuf_DECL(_varname, _size) \
     uint8_t _varname ## _buf[_size]; \
     BMLinBuf_t _varname = { _varname ## _buf, _size, 0, 0 }
+
+#define BMLinBuf_SDECL(_varname, _size) \
+    static uint8_t _varname ## _buf[_size]; \
+    static BMLinBuf_t _varname = { _varname ## _buf, _size, 0, 0 }
 #pragma endregion DECLARE_BMLinBuf_t
 
-#pragma region DECLARE_BMLinBufQ_t
+#pragma region DECLARE_BMLinBufPool_t
 typedef struct {
-    BMQBase_t base;
+    BMPoolBase_t base;
     BMLinBuf_pt bufs;
-} BMLinBufQ_t, *BMLinBufQ_pt;
-typedef const BMLinBufQ_t *BMLinBufQ_cpt;
+} BMLinBufPool_t, *BMLinBufPool_pt;
+typedef const BMLinBufPool_t *BMLinBufPool_cpt;
 
-#define BMLinBufQ_DECL(_varname, _qsize, _bufsize) \
-    uint8_t _varname ## _buf[_qsize * _bufsize]; \
-    BMLineBuf_t _varname ## _linbufs[_qsize] = { \
-        { _varname ## _buf, _bufsize, 0, 0 }, \
+#define BMLinBufPool_DECL(_varname, _poolsize, _bufsize) \
+    uint8_t _varname ## _bytebuf[(_poolsize) * (_bufsize)]; \
+    uint16_t _varname ## _used[BMAlign_BC2SWC(_poolsize)]; \
+    BMLinBuf_t _varname ## _linbufs[_poolsize] = { \
+        { _varname ## _bytebuf, _bufsize, 0, 0 } \
     }; \
-    BMLineBufQ_t _varname = { BMQBase(_qsize), \
-        _varname ## _linbufs }
+    BMLinBufPool_t _varname = { \
+        { _varname ## _used, 0, _poolsize }, \
+        _varname ## _linbufs \
+    }
 
-#define BMLinBufQ_SDECL(_varname, _qsize, _bufsize) \
-    static uint8_t _varname ## _buf[_qsize * _bufsize]; \
-    static BMLineBuf_t _varname ## _linbufs[_qsize] = { \
-        { _varname ## _buf, _bufsize, 0, 0 }, \
+#define BMLinBufPool_SDECL(_varname, _poolsize, _bufsize) \
+    static uint8_t _varname ## _bytebuf[(_poolsize) * (_bufsize)]; \
+    static uint16_t _varname ## _used[BMAlign_BC2SWC(_poolsize)]; \
+    static BMLinBuf_t _varname ## _linbufs[_poolsize] = { \
+        { _varname ## _bytebuf, _bufsize, 0, 0 } \
     }; \
-    static BMLineBufQ_t _varname = { BMQBase(_qsize), \
-        _varname ## _linbufs }
+    static BMLinBufPool_t _varname = { \
+        { _varname ## _used, 0, _poolsize }, \
+        _varname ## _linbufs \
+    }
 
-#define BMLinBufQ_INIT(_varptr) { \
-    BMQBase_INIT(&(_varptr)->base); \
-    uint16_t _qsize = (_varptr)->base.count; \
-    uint16_t _bufsize = (_varptr)->bufs[0].size; \
-    BMLinBuf_t _buftemplate; \
+#define BMLinBufPool_INIT(_varptr) BMPoolBase_INIT(&(_varptr)->base); \
+{ \
     size_t _copysize = sizeof(BMLinBuf_t); \
-    memcpy(&_buftemplate, (_varptr)->bufs, _copysize); \
     BMLinBuf_pt _iter = (_varptr)->bufs; \
-    BMLinBuf_cpt const _end = _iter + _qsize; \
+    BMLinBuf_cpt const _end = _iter + (_varptr)->base.count; \
+    BMLinBuf_t _template; \
+    memcpy(&_template, _iter, _copysize); \
     for (; _iter != _end; _iter++) \
     { \
-        memcpy(_iter, &_buftemplate, _copysize); \
-        _buftemplate.buf += _bufsize; \
+        memcpy(_iter, &_template, _copysize); \
+        _template.buf += _template.size; \
     } \
 }
 
-#define BMLinBufQ_DEINIT(_varptr) BMQBase_DEINIT(&(_varptr)->base)
+#define BMLinBufPool_DEINIT(_varptr) BMPoolBase_DEINIT(&(_varptr)->base)
 
+BMLinBuf_pt BMLinBufPool_Get(BMLinBufPool_pt pool);
 
-#pragma endregion DECLARE_BMLinBufQ_t
+BMStatus_t BMLinBufPool_Return(BMLinBufPool_pt pool, BMLinBuf_pt linbuf);
+
+BMLinBuf_pt BMLinBufPool_SGet();
+
+BMStatus_t BMLinBufPool_SReturn(BMLinBuf_pt linbuf);
+#pragma endregion DECLARE_BMLinBufPool_t
 #endif /* BMLINBUF_H */

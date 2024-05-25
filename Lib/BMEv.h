@@ -9,6 +9,7 @@ typedef struct {
     uint16_t listeners;
     void* param;
 } BMEv_t, *BMEv_pt;
+typedef const BMEv_t *BMEv_cpt;
 
 #define BMEv_INIT(_evptr) { \
     (_evptr)->id = 0; (_evptr)->listeners = 0; (_evptr)->param = NULL; }

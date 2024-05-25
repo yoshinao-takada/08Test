@@ -1,0 +1,19 @@
+@startuml
+state "Wait for HDMk" as WHMK
+state "Get Frame Len" as GFRL
+state "Read Payload" as RDPL
+state "Check CRC" as CCRC
+state "Frame Complete" as FRCMP
+[*] -r-> WHMK
+WHMK -r-> WHMK : getc()[2-byte queue != BMK]
+WHMK -d-> GFRL : getc()[2-byte queeu == BMK]/\nPut in CRC decoder
+GFRL -r-> GFRL : getc()[1st byte]
+GFRL -d-> CCRC : getc()\n[2nd byte && LEN == 0]
+GFRL -d-> RDPL : getc()[2nd byte && LEN != 0]/\nPut in CRC decoder\nConvert to LEN
+RDPL -r-> RDPL : getc()[(LEN-1) times]/\nPut in CRC decoder\nPut in Payload buffer
+RDPL -d-> CCRC : getc()[LEN'th byte]/\nPut in CRC decoder\nPut in Payload buffer
+CCRC -r-> CCRC : getc()[1st byte]
+CCRC --> FRCMP : getc()[2nd byte && no error]
+CCRC --> WHMK : getc()[2nd byte && error]/\nDiscard payload.
+FRCMP --> WHMK : hand payload buffer to NWL\nReset frame decoder
+@enduml

@@ -5,6 +5,7 @@
         "bmtick.h": "c",
         "bmevq.h": "c",
         "time.h": "c",
-        "bmringbuf.h": "c"
+        "bmringbuf.h": "c",
+        "bmdlnode.h": "c"
     }
 }
