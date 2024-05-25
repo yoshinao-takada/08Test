@@ -36,3 +36,13 @@ BMStatus_t BMLinBufPool_SReturn(BMLinBuf_pt linbuf)
 {
     return BMLinBufPool_Return(&linbufpool, linbuf);
 }
+
+void BMLinBufPool_SInit()
+{
+    BMLinBufPool_INIT(&linbufpool);
+}
+
+void BMLinBufPool_SDeinit()
+{
+    BMLinBufPool_DEINIT(&linbufpool);
+}

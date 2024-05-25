@@ -2,7 +2,7 @@
 #define BMLINBUF_H
 #include "BMPoolBase.h"
 #include <memory.h>
-#define BMLinBuf_STATIC_POOL_SIZE   4
+#define BMLinBuf_STATIC_POOL_SIZE   8
 #define BMLinBuf_STATIC_BUF_SIZE    32
 #pragma region DECLARE_BMLinBuf_t
 /*!
@@ -75,5 +75,8 @@ BMStatus_t BMLinBufPool_Return(BMLinBufPool_pt pool, BMLinBuf_pt linbuf);
 BMLinBuf_pt BMLinBufPool_SGet();
 
 BMStatus_t BMLinBufPool_SReturn(BMLinBuf_pt linbuf);
+
+void BMLinBufPool_SInit();
+void BMLinBufPool_SDeinit();
 #pragma endregion DECLARE_BMLinBufPool_t
 #endif /* BMLINBUF_H */
