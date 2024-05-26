@@ -17,7 +17,7 @@ typedef const BMCRC_t *BMCRC_cpt;
 /*!
 \brief Convert uint32_t Shifter to an array of uint8_t.
 */
-#define BMCRC_SHIFTER_BYTES(__crc) ((const uint8_t*)&(__crc->Shifter))
+#define BMCRC_SHIFTER_BYTES(__crc) ((uint8_t*)&((__crc)->Shifter))
 
 /*!
 \brief Put a byte.

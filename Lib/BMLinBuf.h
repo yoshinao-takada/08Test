@@ -2,6 +2,7 @@
 #define BMLINBUF_H
 #include "BMPoolBase.h"
 #include <memory.h>
+#include <assert.h>
 #define BMLinBuf_STATIC_POOL_SIZE   8
 #define BMLinBuf_STATIC_BUF_SIZE    32
 #pragma region DECLARE_BMLinBuf_t
@@ -21,6 +22,15 @@ typedef const BMLinBuf_t *BMLinBuf_cpt;
 #define BMLinBuf_SDECL(_varname, _size) \
     static uint8_t _varname ## _buf[_size]; \
     static BMLinBuf_t _varname = { _varname ## _buf, _size, 0, 0 }
+
+#define BMLinBuf_COPY(_varptr, _bytes, _count) \
+{ \
+    uint16_t filled_after = (_varptr)->filled + _count; \
+    assert(filled_after < (_varptr)->size); \
+    memcpy((_varptr)->buf + (_varptr)->filled, _bytes, _count); \
+    (_varptr)->filled = filled_after; \
+}
+
 #pragma endregion DECLARE_BMLinBuf_t
 
 #pragma region DECLARE_BMLinBufPool_t

@@ -47,5 +47,9 @@ BMStatus_t BMDLDecoder_Putc(BMDLDecoder_pt obj, uint8_t byte);
 BMStatus_t BMDLDecoder_Puts(
     BMDLDecoder_pt obj, uint8_t* bytes, uint16_t bytecount);
 
-BMLinBuf_pt BMDLDecoder_GetPayload(BMDLDecoder_pt obj);
+/*!
+\brief 
+*/
+BMLinBuf_pt
+BMDLDecoder_GetPayloadReset(BMDLDecoder_pt obj, BMLinBuf_pt newpayload);
 #endif /* BMDLLayer_H */

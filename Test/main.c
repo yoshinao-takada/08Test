@@ -14,6 +14,7 @@ BMStatus_t BMTickUT();
 BMStatus_t BMRingBufUT();
 BMStatus_t BMDLNodeUT();
 BMStatus_t BMLinBufUT();
+BMStatus_t BMDLLayerUT();
 
 int HasFlag(int argc, const char* argv[], const char* strFlag)
 {
@@ -60,6 +61,10 @@ int main(int argc, const char* argv[])
         if (BMStatus_SUCCESS != (status = BMLinBufUT()))
         {
             BMTest_ERRLOGBREAKEX("Fail in BMLinBufUT()");
+        }
+        if (BMStatus_SUCCESS != (status = BMDLLayerUT()))
+        {
+            BMTest_ERRLOGBREAKEX("Fail in BMDLLayerUT()");
         }
     } while (0);
     BMTest_ENDFUNC(status);

@@ -17,8 +17,7 @@ static BMStateResult_t StateGFRL1(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateRDPL(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateCCRC0(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateCCRC1(BMDLDecoder_pt decoder, uint8_t byte);
-static BMStateResult_t
-StateFRCMP(BMDLDecoder_pt decoder, BMLinBuf_pt newbuf, BMLinBuf_pt* ppbuf);
+static BMStateResult_t StateFRCMP(BMDLDecoder_pt decoder, uint8_t byte);
 
 void BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf)
 {
@@ -41,13 +40,13 @@ BMStatus_t BMDLDecoder_Putc(BMDLDecoder_pt obj, uint8_t byte);
 BMStatus_t BMDLDecoder_Puts(
     BMDLDecoder_pt obj, uint8_t* bytes, uint16_t bytecount);
 
-BMLinBuf_pt BMDLDecoder_GetPayload(BMDLDecoder_pt obj)
+BMLinBuf_pt
+BMDLDecoder_GetPayloadReset(BMDLDecoder_pt obj, BMLinBuf_pt newpayload)
 {
     BMLinBuf_pt retval = obj->payload;
-    obj->payload = NULL;
+    BMDLDecoder_Reset(obj, newpayload);
     return retval;
 }
-
 
 static BMStateResult_t StateWHMK(BMDLDecoder_pt decoder, uint8_t byte)
 {
@@ -123,15 +122,17 @@ static BMStateResult_t StateCCRC1(BMDLDecoder_pt decoder, uint8_t byte)
     { // error
         result = BMStateResult_ERR;
     }
+    else
+    {
+        decoder->state = StateFRCMP;
+        result = BMStateResult_TRANSIT;
+    }
     return result;
 }
 
-static BMStateResult_t 
-StateFRCMP(BMDLDecoder_pt decoder, BMLinBuf_pt newbuf, BMLinBuf_pt* ppbuf)
+// Frame decoding completion state
+static BMStateResult_t StateFRCMP(BMDLDecoder_pt decoder, uint8_t byte)
 {
-    BMStateResult_t result = BMStateResult_TRANSIT;
-    *ppbuf = decoder->payload;
-    BMDLDecoder_Reset(decoder, newbuf);
-    decoder->state = StateWHMK;
+    BMStateResult_t result = BMStateResult_IGNORE;
     return result;
 }

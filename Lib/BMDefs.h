@@ -35,6 +35,25 @@
 // Convert bit count to short word count.
 #define BMAlign_BC2SWC(_n)  (BMAlign_TO16(_n) >> 4)
 
+// reverse endian
+#define BMENDIAN_SWAPBYTES(_btptrA, _btptrB, _btptrTMP) \
+    *(_btptrTMP) = *(_btptrA); \
+    *(_btptrA) = *(_btptrB); \
+    *(_btptrB) = *(_btptrTMP)
+
+#define BMENDIAN_REV16(_anyptr) { \
+    uint8_t _tmp; \
+    uint8_t* _btptr = (uint8_t*)(_anyptr); \
+    BMENDIAN_SWAPBYTES(_btptr, _btptr + 1, &_tmp); \
+}
+
+#define BMENDIAN_REV32(_anyptr) { \
+    uint8_t _tmp; \
+    uint8_t* _btptr = (uint8_t*)(_anyptr); \
+    BMENDIAN_SWAPBYTES(_btptr, _btptr + 3, &_tmp); \
+    BMENDIAN_SWAPBYTES(_btptr + 1, _btptr + 2, &_tmp); \
+}
+
 typedef uint16_t BMStatus_t;
 typedef uint16_t BMEvId_t;
 
