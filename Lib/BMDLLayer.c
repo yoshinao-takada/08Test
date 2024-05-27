@@ -11,7 +11,6 @@ static int MatchHDRMK(const char* tocompare)
     return (HDRMK[0] == tocompare[0]) && (HDRMK[1] == tocompare[1]);
 }
 
-static BMStateResult_t StateWHMK(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateGFRL0(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateGFRL1(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateRDPL(BMDLDecoder_pt decoder, uint8_t byte);
@@ -25,7 +24,7 @@ void BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf)
     obj->crc.Shifter = BMDLLayer_CRCSEED;
     obj->hm[0] = obj->hm[1] = 0;
     obj->payload_len = -1;
-    obj->state = StateWHMK;
+    obj->state = BMDLLayer_StateWHMK;
     obj->payload->crunched = obj->payload->filled = 0;
 }
 
@@ -48,7 +47,7 @@ BMDLDecoder_GetPayloadReset(BMDLDecoder_pt obj, BMLinBuf_pt newpayload)
     return retval;
 }
 
-static BMStateResult_t StateWHMK(BMDLDecoder_pt decoder, uint8_t byte)
+BMStateResult_t BMDLLayer_StateWHMK(BMDLDecoder_pt decoder, uint8_t byte)
 {
     BMStateResult_t result = BMStateResult_IGNORE;
     PUSH_BYTE(decoder->hm, byte);
@@ -82,7 +81,7 @@ static BMStateResult_t StateGFRL1(BMDLDecoder_pt decoder, uint8_t byte)
     }
     else if (decoder->payload_len > decoder->payload->size)
     {
-        decoder->state = StateWHMK;
+        decoder->state = BMDLLayer_StateWHMK;
         BMDLDecoder_Reset(decoder, decoder->payload);
     }
     else

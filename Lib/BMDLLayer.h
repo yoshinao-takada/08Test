@@ -5,14 +5,6 @@
 #include "BMFSM.h"
 #include <stdint.h>
 
-#define BMDLLayer_CRCSEED   BMCRC_SEED16
-#define BMDLLayer_HDRMK { 0xaa, 0x55 }
-#define BMDLLayer_INI   { \
-    BMCRC_CCITT16_INIT(BMDLLayer_CRCSEED), \
-    { 0, 0 }, \
-    NULL, \
-    0u }
-
 /*!
 \brief Data Link Layer decoder accepts characters in
     byte-by-byte manner. The decoder detects a header mark and
@@ -28,6 +20,18 @@ typedef struct BMDLDecoder {
     // state
     BMStateResult_t (*state)(struct BMDLDecoder* decoder, uint8_t byte);
 } BMDLDecoder_t, *BMDLDecoder_pt;
+
+BMStateResult_t BMDLLayer_StateWHMK(BMDLDecoder_pt decoder, uint8_t byte);
+
+#define BMDLLayer_CRCSEED   BMCRC_SEED16
+#define BMDLLayer_HDRMK { 0xaa, 0x55 }
+#define BMDLLayer_INI   { \
+    BMCRC_CCITT16_INIT(BMDLLayer_CRCSEED), \
+    BMDLLayer_HDRMK, \
+    BMLinBufPool_SGet(), \
+    0u, \
+    BMDLLayer_StateWHMK }
+
 
 typedef const BMDLDecoder_t *BMDLDecoder_cpt;
 
