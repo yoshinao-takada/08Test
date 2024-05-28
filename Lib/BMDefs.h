@@ -65,6 +65,7 @@ typedef uint16_t BMEvId_t;
 #define BMStatus_NOCONVERGENCE  (BMStatus_ERRBEGIN + 4)
 #define BMStatus_SINGULAR       (BMStatus_ERRBEGIN + 5)
 #define BMStatus_NOTFOUND       (BMStatus_ERRBEGIN + 6)
+#define BMStatus_END            (BMStatus_ERRBEGIN + 7)
 #define BMStatus_RESET(_sptr)   ((*(_sptr)) = BMStatus_SUCCESS)
 #define BMStatus_IS_ERR(_s)     (_s != BMStatus_SUCCESS)
 

@@ -8,7 +8,7 @@ typedef enum {
     BMStateResult_IGNORE,
     BMStateResult_ACCEPT,
     BMStateResult_TRANSIT,
-    BMStateResult_ERR
+    BMStateResult_ERROR
 } BMStateResult_t;
 
 typedef struct BMFSM {

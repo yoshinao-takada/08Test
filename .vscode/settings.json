@@ -1,12 +1,6 @@
 {
     "files.associations": {
-        "pthread.h": "c",
-        "bmpoolbase.h": "c",
-        "bmtick.h": "c",
-        "bmevq.h": "c",
-        "time.h": "c",
-        "bmringbuf.h": "c",
-        "bmdlnode.h": "c",
-        "bmcrc.h": "c"
+        "*.c": "c",
+        "bmdlnode.h": "c"
     }
 }

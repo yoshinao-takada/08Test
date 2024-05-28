@@ -20,6 +20,7 @@ typedef struct BMDLDecoder {
     // state
     BMStateResult_t (*state)(struct BMDLDecoder* decoder, uint8_t byte);
 } BMDLDecoder_t, *BMDLDecoder_pt;
+typedef const BMDLDecoder_t *BMDLDecoder_cpt;
 
 BMStateResult_t BMDLLayer_StateWHMK(BMDLDecoder_pt decoder, uint8_t byte);
 
@@ -32,13 +33,10 @@ BMStateResult_t BMDLLayer_StateWHMK(BMDLDecoder_pt decoder, uint8_t byte);
     0u, \
     BMDLLayer_StateWHMK }
 
-
-typedef const BMDLDecoder_t *BMDLDecoder_cpt;
-
 /*!
 \brief set the decoder in the initial state.
 */
-void BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf);
+BMLinBuf_pt BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf);
 
 /*!
 \brief put a character into the decoder.
@@ -49,11 +47,5 @@ BMStatus_t BMDLDecoder_Putc(BMDLDecoder_pt obj, uint8_t byte);
 \brief put a byte sequence into the decoder.
 */
 BMStatus_t BMDLDecoder_Puts(
-    BMDLDecoder_pt obj, uint8_t* bytes, uint16_t bytecount);
-
-/*!
-\brief 
-*/
-BMLinBuf_pt
-BMDLDecoder_GetPayloadReset(BMDLDecoder_pt obj, BMLinBuf_pt newpayload);
+    BMDLDecoder_pt obj, uint8_t* bytes, uint16_t* bytecount);
 #endif /* BMDLLayer_H */

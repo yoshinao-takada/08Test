@@ -18,33 +18,56 @@ static BMStateResult_t StateCCRC0(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateCCRC1(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateFRCMP(BMDLDecoder_pt decoder, uint8_t byte);
 
-void BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf)
+BMLinBuf_pt BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf)
 {
+    BMLinBuf_pt retval = obj->payload;
     obj->payload = payloadbuf;
     obj->crc.Shifter = BMDLLayer_CRCSEED;
     obj->hm[0] = obj->hm[1] = 0;
     obj->payload_len = -1;
     obj->state = BMDLLayer_StateWHMK;
     obj->payload->crunched = obj->payload->filled = 0;
+    return retval;
 }
 
 /*!
 \brief put a character into the decoder.
 */
-BMStatus_t BMDLDecoder_Putc(BMDLDecoder_pt obj, uint8_t byte);
+BMStatus_t BMDLDecoder_Putc(BMDLDecoder_pt obj, uint8_t byte)
+{
+    BMStatus_t status = BMStatus_SUCCESS;
+    BMStateResult_t result = obj->state(obj, byte);
+    if (result == BMStateResult_ERROR) 
+    {
+        status = BMStatus_FAILURE;
+    }
+    else if (obj->state == StateFRCMP)
+    {
+        status = BMStatus_END;
+    }
+    return status;
+}
 
 /*!
 \brief put a byte sequence into the decoder.
 */
 BMStatus_t BMDLDecoder_Puts(
-    BMDLDecoder_pt obj, uint8_t* bytes, uint16_t bytecount);
-
-BMLinBuf_pt
-BMDLDecoder_GetPayloadReset(BMDLDecoder_pt obj, BMLinBuf_pt newpayload)
+    BMDLDecoder_pt obj, uint8_t* bytes, uint16_t* bytecount)
 {
-    BMLinBuf_pt retval = obj->payload;
-    BMDLDecoder_Reset(obj, newpayload);
-    return retval;
+    BMStatus_t status = BMStatus_SUCCESS;
+    for (uint16_t i = 0; i < (*bytecount); i++)
+    {
+        if (BMStatus_SUCCESS != (status = BMDLDecoder_Putc(obj, bytes[i])))
+        {
+            if (status == BMStatus_END)
+            {
+                i++;
+            }
+            *bytecount = i;
+            break;
+        }
+    }
+    return status;
 }
 
 BMStateResult_t BMDLLayer_StateWHMK(BMDLDecoder_pt decoder, uint8_t byte)
@@ -119,7 +142,7 @@ static BMStateResult_t StateCCRC1(BMDLDecoder_pt decoder, uint8_t byte)
     BMCRC_Put(&decoder->crc, byte);
     if (decoder->crc.Shifter)
     { // error
-        result = BMStateResult_ERR;
+        result = BMStateResult_ERROR;
     }
     else
     {
