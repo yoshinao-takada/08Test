@@ -1,15 +1,14 @@
 #include "BMDLLayer.h"
+#include "BMDLLayerDbg.h"
 
 #define PUSH_BYTE(_buf, _byte) \
-    _buf[1] = _buf[0]; \
-    _buf[0] = _byte
+    _buf[0] = _buf[1]; \
+    _buf[1] = _byte
 
 static const uint8_t HDRMK[] = BMDLLayer_HDRMK;
 
-static int MatchHDRMK(const char* tocompare)
-{
-    return (HDRMK[0] == tocompare[0]) && (HDRMK[1] == tocompare[1]);
-}
+#define MatchHDRMK(_tocompare) \
+    ((HDRMK[0] == _tocompare[0]) && (HDRMK[1] == _tocompare[1]))
 
 static BMStateResult_t StateGFRL0(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateGFRL1(BMDLDecoder_pt decoder, uint8_t byte);
@@ -17,6 +16,22 @@ static BMStateResult_t StateRDPL(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateCCRC0(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateCCRC1(BMDLDecoder_pt decoder, uint8_t byte);
 static BMStateResult_t StateFRCMP(BMDLDecoder_pt decoder, uint8_t byte);
+
+static BMDLLayerState_f const STATES[] =
+{
+    BMDLLayer_StateWHMK,
+    StateGFRL0,
+    StateGFRL1,
+    StateRDPL,
+    StateCCRC0,
+    StateCCRC1,
+    StateFRCMP,
+};
+
+BMDLLayerState_f BMDLLayerDBG_State(BMDLLayerDBG_StateID_t stateIndex)
+{
+    return STATES[(int)stateIndex];
+}
 
 BMLinBuf_pt BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf)
 {
@@ -26,7 +41,10 @@ BMLinBuf_pt BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf)
     obj->hm[0] = obj->hm[1] = 0;
     obj->payload_len = -1;
     obj->state = BMDLLayer_StateWHMK;
-    obj->payload->crunched = obj->payload->filled = 0;
+    if (obj->payload)
+    {
+        obj->payload->crunched = obj->payload->filled = 0;
+    }
     return retval;
 }
 
@@ -70,6 +88,7 @@ BMStatus_t BMDLDecoder_Puts(
     return status;
 }
 
+#pragma region STATE_HANDLER_IMPL
 BMStateResult_t BMDLLayer_StateWHMK(BMDLDecoder_pt decoder, uint8_t byte)
 {
     BMStateResult_t result = BMStateResult_IGNORE;
@@ -85,7 +104,7 @@ BMStateResult_t BMDLLayer_StateWHMK(BMDLDecoder_pt decoder, uint8_t byte)
 
 static BMStateResult_t StateGFRL0(BMDLDecoder_pt decoder, uint8_t byte)
 {
-    BMStateResult_t result = BMStateResult_ACCEPT;
+    BMStateResult_t result = BMStateResult_TRANSIT;
     PUSH_BYTE(decoder->hm, byte);
     BMCRC_Put(&decoder->crc, byte);
     decoder->state = StateGFRL1;
@@ -158,3 +177,5 @@ static BMStateResult_t StateFRCMP(BMDLDecoder_pt decoder, uint8_t byte)
     BMStateResult_t result = BMStateResult_IGNORE;
     return result;
 }
+#pragma endregion STATE_HANDLER_IMPL
+
