@@ -1,8 +1,10 @@
 #include "BMDLLayer.h"
 #include "BMTest.h"
 #include "BMDLLayerDbg.h"
+#include <assert.h>
 
 static const uint8_t TEST_BYTES0[] = "0123456789ABCDEF";
+static const uint8_t TEST_BYTES1[] = { 0, 1, '\r', '\n', 0xfe, 0xff, 0x80, 0x81, 188, 195 };
 static const uint8_t HDRMK[] = BMDLLayer_HDRMK;
 
 static void PutBytes
@@ -207,6 +209,76 @@ static BMStatus_t BMDLLayer_DecodeUT()
     return status;
 }
 
+/*!
+\brief confirm recovery from CRC error
+Step 1: Create two frames; The 1st one has bit errors. The 2nd one
+    has no bit error.</br>
+Step 2: Initialize a decoder.
+Step 3: Put the 1st frame into the decoder and confirm error.
+Step 4: Put the 2nd frame into the decoder and confirm no error.
+*/
+static void MkFrame(BMLinBuf_pt buf, const uint8_t* payload, uint16_t payloadLen)
+{
+    // Initialize CRC encoder
+    BMCRC_t crc = BMCRC_CCITT16_INIT(BMCRC_SEED16);
+    uint8_t* shifterBytes = BMCRC_SHIFTER_BYTES(&crc);
+    // Copy and CRC encode the physical layer byte sequence into buf.
+    PutBytes(&crc, buf, HDRMK, sizeof(HDRMK));
+    PutBytes(&crc, buf, (uint8_t*)&payloadLen, sizeof(uint16_t));
+    PutBytes(&crc, buf, payload, payloadLen);
+    // Create CRC error checking code in buf.
+    BMCRC_Put0s(&crc, 2);
+    BMENDIAN_REV16(shifterBytes);
+    BMLinBuf_COPY(buf, shifterBytes, 2);
+}
+
+static BMStatus_t BMDLLayer_ErrRecoveryUT()
+{
+    BMStatus_t status = BMStatus_SUCCESS;
+    BMLinBuf_pt rbuf0 = BMLinBufPool_SGet(), rbuf1 = BMLinBufPool_SGet();
+    BMLinBuf_pt sbuf0 = BMLinBufPool_SGet(), sbuf1 = BMLinBufPool_SGet();
+    assert(rbuf0); assert(rbuf1); assert(sbuf0); assert(sbuf1);
+    MkFrame(sbuf0, TEST_BYTES0, sizeof(TEST_BYTES0));
+    MkFrame(sbuf1, TEST_BYTES1, sizeof(TEST_BYTES1));
+    // apply a bit error in payload length part in the frame
+    sbuf0->buf[3] ^= 0x04;
+    // init the frame decoder
+    BMDLDecoder_t decoder = BMDLLayer_INI;
+    BMDLDecoder_Reset(&decoder, rbuf0);
+    do {
+        uint16_t bytecount = sbuf0->filled;
+        status = BMDLDecoder_Puts(&decoder, sbuf0->buf, &bytecount);
+        if (status || (bytecount != sbuf0->filled) ||
+            (decoder.state != BMDLLayer_StateWHMK) ||
+            (decoder.payload_len) || (decoder.payload->filled))
+        {
+            BMTest_ERRLOGBREAKEX("Unknown error in BMDLDecoder_Puts()");
+        }
+        bytecount = sbuf1->filled;
+        status = BMDLDecoder_Puts(&decoder, sbuf1->buf, &bytecount);
+        if ((status != BMStatus_END) ||
+            (decoder.payload_len != sizeof(TEST_BYTES1)))
+        {
+            BMTest_ERRLOGBREAKEX("Unknown error in BMDLDecoder_Puts()");
+        }
+        status = BMStatus_SUCCESS;
+        BMLinBuf_pt payload = BMDLDecoder_Reset(&decoder, NULL);
+        if ((payload->filled != sizeof(TEST_BYTES1)) ||
+            memcmp(payload->buf, TEST_BYTES1, payload->filled))
+        {
+            status = BMStatus_FAILURE;
+            BMTest_ERRLOGBREAKEX("Unknown error in BMDLDecoder_Puts() result payload");
+        }
+    } while (0);
+    assert(BMStatus_SUCCESS == BMLinBufPool_SReturn(rbuf0));
+    assert(BMStatus_SUCCESS == BMLinBufPool_SReturn(rbuf1));
+    assert(BMStatus_SUCCESS == BMLinBufPool_SReturn(sbuf0));
+    assert(BMStatus_SUCCESS == BMLinBufPool_SReturn(sbuf1));
+    BMTest_ENDFUNC(status);
+    return status;
+}
+
+
 BMStatus_t BMDLLayerUT()
 {
     BMStatus_t status = BMStatus_SUCCESS;
@@ -219,6 +291,10 @@ BMStatus_t BMDLLayerUT()
         if (BMStatus_SUCCESS != (status = BMDLLayer_DecodeUT()))
         {
             BMTest_ERRLOGBREAKEX("Fail in BMDLLayer_DecodeUT()");
+        }
+        if (BMStatus_SUCCESS != (status = BMDLLayer_ErrRecoveryUT()))
+        {
+            BMTest_ERRLOGBREAKEX("Fail in BMDLLayer_ErrRecoveryUT()");
         }
     } while (0);
     BMLinBufPool_SDeinit();

@@ -39,7 +39,7 @@ BMLinBuf_pt BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf)
     obj->payload = payloadbuf;
     obj->crc.Shifter = BMDLLayer_CRCSEED;
     obj->hm[0] = obj->hm[1] = 0;
-    obj->payload_len = -1;
+    obj->payload_len = 0;
     obj->state = BMDLLayer_StateWHMK;
     if (obj->payload)
     {
@@ -77,11 +77,7 @@ BMStatus_t BMDLDecoder_Puts(
     {
         if (BMStatus_SUCCESS != (status = BMDLDecoder_Putc(obj, bytes[i])))
         {
-            if (status == BMStatus_END)
-            {
-                i++;
-            }
-            *bytecount = i;
+            *bytecount = i + 1;
             break;
         }
     }
@@ -121,7 +117,7 @@ static BMStateResult_t StateGFRL1(BMDLDecoder_pt decoder, uint8_t byte)
     {
         decoder->state = StateCCRC0;
     }
-    else if (decoder->payload_len > decoder->payload->size)
+    else if (decoder->payload_len > BMDLDeoder_MAX_PAYLOAD_LEN)
     {
         decoder->state = BMDLLayer_StateWHMK;
         BMDLDecoder_Reset(decoder, decoder->payload);

@@ -4,6 +4,7 @@
 #include "BMLinBuf.h"
 #include "BMFSM.h"
 #include <stdint.h>
+#define BMDLDeoder_MAX_PAYLOAD_LEN  BMLinBuf_STATIC_BUF_SIZE
 
 /*!
 \brief Data Link Layer decoder accepts characters in
