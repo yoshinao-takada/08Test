@@ -36,6 +36,8 @@ BMStatus_t BMRingBuf_Put(BMRingBuf_pt rb, const uint8_t* byteptr);
 
 /*!
 \brief get a byte from a ring buffer.
+\return BMStatus_SUCCESS: a byte was retrieved.
+\return BMStatus_NORESOURCE: rb is empty and no byte was retrieved.
 */
 BMStatus_t BMRingBuf_Get(BMRingBuf_pt rb, uint8_t* byteptr);
 #pragma endregion BMRingBuf_DECL

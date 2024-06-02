@@ -11,12 +11,14 @@ DEBUG_OBJECTS = $(DEBUG_OBJ_DIR)/BMEv.o $(DEBUG_OBJ_DIR)/BMPoolBase.o \
 	$(DEBUG_OBJ_DIR)/BMQBase.o $(DEBUG_OBJ_DIR)/BMDLNode.o \
 	$(DEBUG_OBJ_DIR)/BMTick.o $(DEBUG_OBJ_DIR)/BMRingBuf.o \
 	$(DEBUG_OBJ_DIR)/BMCRC.o $(DEBUG_OBJ_DIR)/BMLinBuf.o \
-	$(DEBUG_OBJ_DIR)/BMDLLayer.o
+	$(DEBUG_OBJ_DIR)/BMDLLayer.o $(DEBUG_OBJ_DIR)/BMCommBase.o \
+	$(DEBUG_OBJ_DIR)/BMCommThread.o
 RELEASE_OBJECTS = $(RELEASE_OBJ_DIR)/BMEv.o $(RELEASE_OBJ_DIR)/BMPoolBase.o \
 	$(RELEASE_OBJ_DIR)/BMQBase.o $(RELEASE_OBJ_DIR)/BLDLNode.o \
 	$(RELEASE_OBJ_DIR)/BMTick.o $(RELEASE_OBJ_DIR)/BMRingBuf.o \
 	$(RELEASE_OBJ_DIR)/BMCRC.o $(RELEASE_OBJ_DIR)/BMDLinBuf.o \
-	$(RELEASE_OBJ_DIR)/BMDLLayer.o
+	$(RELEASE_OBJ_DIR)/BMDLLayer.o $(RELEASE_OBJ_DIR)/BMCommBase.o \
+	$(RELEASE_OBJ_DIR)/BMCommThread.o
 
 debug	:	$(DEBUG_TARGET)
 $(DEBUG_TARGET)	:	$(DEBUG_OBJECTS)
@@ -59,6 +61,15 @@ $(DEBUG_OBJ_DIR)/BMLinBuf.o	:	BMLinBuf.c BMLinBuf.h BMPoolBase.h BMDefs.h
 
 $(DEBUG_OBJ_DIR)/BMDLLayer.o	:	BMDLLayer.c BMDLLayer.h BMLinBuf.h \
 									BMPoolBase.h BMDefs.h BMCRC.h
+	mkdir -p $(DEBUG_OBJ_DIR)
+	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
+
+$(DEBUG_OBJ_DIR)/BMCommBase.o	:	BMCommBase.c BMCommBase.h BMDefs.h
+	mkdir -p $(DEBUG_OBJ_DIR)
+	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
+
+$(DEBUG_OBJ_DIR)/BMCommThread.o	:	BMCommThread.c BMCommThread.h BMCommBase.h \
+									BMRingBuf.h BMEv.h BMDLNode.h BMDefs.h
 	mkdir -p $(DEBUG_OBJ_DIR)
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 

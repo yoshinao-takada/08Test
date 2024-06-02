@@ -10,7 +10,8 @@ DEBUG_OBJECTS = $(DEBUG_OBJ_DIR)/main.o $(DEBUG_OBJ_DIR)/BMQBaseUT.o \
 	$(DEBUG_OBJ_DIR)/BMPoolBaseUT.o $(DEBUG_OBJ_DIR)/BMEvUT.o \
 	$(DEBUG_OBJ_DIR)/BMDefsUT.o $(DEBUG_OBJ_DIR)/BMDLLayerUT.o \
 	$(DEBUG_OBJ_DIR)/BMTickUT.o $(DEBUG_OBJ_DIR)/BMRingBufUT.o \
-	$(DEBUG_OBJ_DIR)/BMDLNodeUT.o $(DEBUG_OBJ_DIR)/BMLinBufUT.o
+	$(DEBUG_OBJ_DIR)/BMDLNodeUT.o $(DEBUG_OBJ_DIR)/BMLinBufUT.o \
+	$(DEBUG_OBJ_DIR)/BMFSMUT.o
 
 .PHONY	:	debug
 .PHONY	:	clean_debug
@@ -46,6 +47,9 @@ $(DEBUG_OBJ_DIR)/BMLinBufUT.o	:	BMLinBufUT.c
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 
 $(DEBUG_OBJ_DIR)/BMDLLayerUT.o	:	BMDLLayerUT.c
+	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
+
+$(DEBUG_OBJ_DIR)/BMFSMUT.o	:	BMFSMUT.c
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 
 clean_debug	:

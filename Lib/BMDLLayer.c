@@ -5,7 +5,7 @@
     _buf[0] = _buf[1]; \
     _buf[1] = _byte
 
-static const uint8_t HDRMK[] = BMDLLayer_HDRMK;
+static const uint8_t HDRMK[] = BMDLDecoder_HDRMK;
 
 #define MatchHDRMK(_tocompare) \
     ((HDRMK[0] == _tocompare[0]) && (HDRMK[1] == _tocompare[1]))
@@ -19,7 +19,7 @@ static BMStateResult_t StateFRCMP(BMDLDecoder_pt decoder, uint8_t byte);
 
 static BMDLLayerState_f const STATES[] =
 {
-    BMDLLayer_StateWHMK,
+    BMDLDecoder_StateWHMK,
     StateGFRL0,
     StateGFRL1,
     StateRDPL,
@@ -37,10 +37,10 @@ BMLinBuf_pt BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf)
 {
     BMLinBuf_pt retval = obj->payload;
     obj->payload = payloadbuf;
-    obj->crc.Shifter = BMDLLayer_CRCSEED;
+    obj->crc.Shifter = BMDLDecoder_CRCSEED;
     obj->hm[0] = obj->hm[1] = 0;
     obj->payload_len = 0;
-    obj->state = BMDLLayer_StateWHMK;
+    obj->state = BMDLDecoder_StateWHMK;
     if (obj->payload)
     {
         obj->payload->crunched = obj->payload->filled = 0;
@@ -54,6 +54,11 @@ BMLinBuf_pt BMDLDecoder_Reset(BMDLDecoder_pt obj, BMLinBuf_pt payloadbuf)
 BMStatus_t BMDLDecoder_Putc(BMDLDecoder_pt obj, uint8_t byte)
 {
     BMStatus_t status = BMStatus_SUCCESS;
+    if (obj->payload->filled == obj->payload->size)
+    { // decoder internal buffer is full.
+        return BMStatus_NORESOURCE;
+    }
+    // decode 1 byte.
     BMStateResult_t result = obj->state(obj, byte);
     if (result == BMStateResult_ERROR) 
     {
@@ -84,8 +89,22 @@ BMStatus_t BMDLDecoder_Puts(
     return status;
 }
 
-#pragma region STATE_HANDLER_IMPL
-BMStateResult_t BMDLLayer_StateWHMK(BMDLDecoder_pt decoder, uint8_t byte)
+/*!
+\brief put a byte sequence from the ring buffer into the decoder.
+*/
+BMStatus_t BMDLDecoder_RbPuts(BMDLDecoder_pt obj, BMRingBuf_pt rb)
+{
+    BMStatus_t status = BMStatus_SUCCESS;
+    uint8_t bytebuf;
+    for (; BMStatus_SUCCESS == BMRingBuf_Get(rb, &bytebuf); )
+    {
+        status = BMDLDecoder_Putc(obj, bytebuf);
+    }
+    return status;
+}
+
+#pragma region DECODER_STATE_HANDLER_IMPL
+BMStateResult_t BMDLDecoder_StateWHMK(BMDLDecoder_pt decoder, uint8_t byte)
 {
     BMStateResult_t result = BMStateResult_IGNORE;
     PUSH_BYTE(decoder->hm, byte);
@@ -119,7 +138,7 @@ static BMStateResult_t StateGFRL1(BMDLDecoder_pt decoder, uint8_t byte)
     }
     else if (decoder->payload_len > BMDLDeoder_MAX_PAYLOAD_LEN)
     {
-        decoder->state = BMDLLayer_StateWHMK;
+        decoder->state = BMDLDecoder_StateWHMK;
         BMDLDecoder_Reset(decoder, decoder->payload);
     }
     else
@@ -173,5 +192,12 @@ static BMStateResult_t StateFRCMP(BMDLDecoder_pt decoder, uint8_t byte)
     BMStateResult_t result = BMStateResult_IGNORE;
     return result;
 }
-#pragma endregion STATE_HANDLER_IMPL
+#pragma endregion DECODER_STATE_HANDLER_IMPL
 
+#pragma region DATALINK_LAYER_CONTROLLER_IMPL
+BMStateResult_t BMDLLayer_State0(BMFSM_pt *fsm, BMEv_pt ev)
+{
+    BMStateResult_t result = BMStateResult_IGNORE;
+    return result;
+}
+#pragma endregion DATALINK_LAYER_CONTROLLER_IMPL

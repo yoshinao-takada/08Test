@@ -5,7 +5,7 @@
 
 static const uint8_t TEST_BYTES0[] = "0123456789ABCDEF";
 static const uint8_t TEST_BYTES1[] = { 0, 1, '\r', '\n', 0xfe, 0xff, 0x80, 0x81, 188, 195 };
-static const uint8_t HDRMK[] = BMDLLayer_HDRMK;
+static const uint8_t HDRMK[] = BMDLDecoder_HDRMK;
 
 static void PutBytes
 (BMCRC_pt crc, BMLinBuf_pt linbuf, const uint8_t* bytes, uint16_t count)
@@ -74,7 +74,7 @@ static BMStatus_t BMDLLayer_DecodeUT()
     BMLinBuf_pt linbuf = NULL;
     BMCRC_t crc = BMCRC_CCITT16_INIT(BMCRC_SEED16);
     uint8_t* shifterBytes = BMCRC_SHIFTER_BYTES(&crc);
-    BMDLDecoder_t decoder = BMDLLayer_INI;
+    BMDLDecoder_t decoder = BMDLDecoder_INI;
     uint16_t payloadLength = strlen(TEST_BYTES0);
     do {
         if (!(linbuf = BMLinBufPool_SGet()))
@@ -92,7 +92,7 @@ static BMStatus_t BMDLLayer_DecodeUT()
         * To be implemented decoding frame detection
         */
 #pragma region send_byte_sequence_to_ignore
-        if (decoder.state != BMDLLayer_StateWHMK)
+        if (decoder.state != BMDLDecoder_StateWHMK)
         {
             status = BMStatus_INVALID;
             BMTest_ERRLOGBREAKEX("Fail to init decoder");
@@ -104,7 +104,7 @@ static BMStatus_t BMDLLayer_DecodeUT()
             {
                 BMTest_ERRLOGBREAKEX("Fail in BMDLDecoder_Putc()");
             }
-            if (BMDLLayer_StateWHMK != decoder.state)
+            if (BMDLDecoder_StateWHMK != decoder.state)
             {
                 status = BMStatus_INVALID;
                 BMTest_ERRLOGBREAKEX("Invalid state transition");
@@ -243,13 +243,13 @@ static BMStatus_t BMDLLayer_ErrRecoveryUT()
     // apply a bit error in payload length part in the frame
     sbuf0->buf[3] ^= 0x04;
     // init the frame decoder
-    BMDLDecoder_t decoder = BMDLLayer_INI;
+    BMDLDecoder_t decoder = BMDLDecoder_INI;
     BMDLDecoder_Reset(&decoder, rbuf0);
     do {
         uint16_t bytecount = sbuf0->filled;
         status = BMDLDecoder_Puts(&decoder, sbuf0->buf, &bytecount);
         if (status || (bytecount != sbuf0->filled) ||
-            (decoder.state != BMDLLayer_StateWHMK) ||
+            (decoder.state != BMDLDecoder_StateWHMK) ||
             (decoder.payload_len) || (decoder.payload->filled))
         {
             BMTest_ERRLOGBREAKEX("Unknown error in BMDLDecoder_Puts()");
@@ -278,6 +278,9 @@ static BMStatus_t BMDLLayer_ErrRecoveryUT()
     return status;
 }
 
+#pragma region BMDLLayer_FSM_Tests
+//BMDLLayer_SDECL(dllayer);
+#pragma endregion BMDLLayer_FSM_Tests
 
 BMStatus_t BMDLLayerUT()
 {
